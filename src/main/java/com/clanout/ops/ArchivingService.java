@@ -2,10 +2,12 @@ package com.clanout.ops;
 
 import com.clanout.application.core.ApplicationContext;
 import com.clanout.application.core.Module;
+import com.clanout.application.library.xmpp.XmppManager;
 import com.clanout.application.module.plan.context.PlanContext;
 import com.clanout.application.module.plan.domain.use_case.ArchivePlans;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -24,7 +26,11 @@ public class ArchivingService
 
     public void run()
     {
-        archivePlans.execute();
+        List<String> archivedPlans = archivePlans.execute().planIds;
+        for (String planId : archivedPlans)
+        {
+            XmppManager.deleteChatroom(planId);
+        }
     }
 
     private ExecutorService getBackgroundThreadPool()
