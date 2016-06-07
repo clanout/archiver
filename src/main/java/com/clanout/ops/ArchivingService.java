@@ -3,6 +3,7 @@ package com.clanout.ops;
 import com.clanout.application.core.ApplicationContext;
 import com.clanout.application.core.Module;
 import com.clanout.application.library.xmpp.XmppManager;
+import com.clanout.application.module.chat.domain.service.FirebaseService;
 import com.clanout.application.module.plan.context.PlanContext;
 import com.clanout.application.module.plan.domain.use_case.ArchivePlans;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -15,6 +16,7 @@ import java.util.concurrent.ThreadFactory;
 public class ArchivingService
 {
     private ArchivePlans archivePlans;
+    private FirebaseService firebaseService;
 
     public ArchivingService() throws Exception
     {
@@ -22,6 +24,7 @@ public class ArchivingService
         ApplicationContext applicationContext = new ApplicationContext(backgroundPool);
         PlanContext planContext = (PlanContext) applicationContext.getContext(Module.PLAN);
         archivePlans = planContext.archivePlans();
+        firebaseService = new FirebaseService();
     }
 
     public void run()
@@ -29,7 +32,8 @@ public class ArchivingService
         List<String> archivedPlans = archivePlans.execute().planIds;
         for (String planId : archivedPlans)
         {
-            XmppManager.deleteChatroom(planId);
+//            XmppManager.deleteChatroom(planId);
+            firebaseService.delete(planId);
         }
     }
 
